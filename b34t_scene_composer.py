@@ -45,6 +45,12 @@ class B34tSceneComposerNode:
                 "height": ("INT", {"default": 512, "min": 64, "max": 4096, "step": 8}), 
                 "normalize_masks": ("BOOLEAN", {"default": True}),
                 "add_base_prompt": ("BOOLEAN", {"default": True}),
+                "base_prompt_strength": ("FLOAT", {
+                    "default": 1.0, 
+                    "min": 0.0, 
+                    "max": 1.0,
+                    "step": 0.01 
+                }),
                 "scene_json": ( "STRING", { "default": "", "multiline": False, }),
                 "scene_data": ("B34T_SCENE_COMPOSER",),
             }
@@ -55,7 +61,7 @@ class B34tSceneComposerNode:
     FUNCTION = "compose_scene"
     CATEGORY = "834t_Nodes"
 
-    def compose_scene(self, clip, width, height, normalize_masks, add_base_prompt, scene_json, scene_data=""):
+    def compose_scene(self, clip, width, height, normalize_masks, add_base_prompt, base_prompt_strength, scene_json, scene_data=""):
         """
         The main function of the node.
         """
@@ -123,13 +129,18 @@ class B34tSceneComposerNode:
         final_conditioning = []
 
         # 3.1. Create and add the base prompt (if enabled)
-        if add_base_prompt:
+        if add_base_prompt and base_prompt_strength > 0:
             all_prompts = [layer['prompt'] for layer in processed_layers]
             base_prompt_text = ", ".join(all_prompts)
-            print(f"[SceneComposer] Base prompt: {base_prompt_text}")
+            print(f"[SceneComposer] Base prompt (strength: {base_prompt_strength}): {base_prompt_text}")
 
             base_tokens = clip.tokenize(base_prompt_text)
             base_cond, base_pooled = clip.encode_from_tokens(base_tokens, return_pooled=True)
+                
+            # apply baseprompt strenght
+            if base_prompt_strength < 1.0:
+                base_cond = base_cond * base_prompt_strength
+
             # Add base conditioning without a mask
             final_conditioning.append([base_cond, {"pooled_output": base_pooled}])
             
