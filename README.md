@@ -27,7 +27,7 @@ The Scene Composer is more than just a node; it's a complete toolkit designed to
 1.  Navigate to your `ComfyUI/custom_nodes/` directory.
 2.  Clone this repository:
     ```bash
-    git clone https://github.com/834t/B34tSceneComposerNode.git
+    git clone https://github.com/834t/ComfyUI_834t_scene_composer.git
     ```
     *(Please replace `B34tSceneComposerNode.git` with your actual repository name if it's different)*
 3.  Restart ComfyUI.
