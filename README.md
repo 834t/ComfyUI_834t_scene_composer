@@ -67,7 +67,7 @@ The Scene Composer is more than just a node; it's a complete toolkit designed to
 
 This node was created by **[834t](https://github.com/834t)**.
 
-A special and heartfelt thank you goes to my AI assistant and consultant, **Gemini 2.5 Pro**. This project would not have been possible without its invaluable help in brainstorming features, architecting the code, debugging complex issues, and preparing the documentation. It was a true partner in development.
+A special and heartfelt thank you goes to my AI assistant and consultant, **Gemini 2.5 Pro**. This project would not have been possible without its invaluable help in brainstorming features, and preparing the documentation. It was a true partner in development.
 
 ---
 
