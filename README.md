@@ -35,7 +35,7 @@ The Scene Composer is more than just a node; it's a complete toolkit designed to
 
 ## 🚀 How to Use
 
-1.  **Add the Node:** Right-click on the canvas and select `Add Node > Workflow > Composers > Scene Composer (834t)`.
+1.  **Add the Node:** Right-click on the canvas and select `Add Node > 834t_Nodes > Scene Composer (834t)`.
 2.  **Set Dimensions:** Adjust the `width` and `height` widgets to your desired output size.
 3.  **Select a Layer:** Click on a color in the palette to activate a layer.
 4.  **Write a Prompt:** In the text area, write the prompt for the selected layer (e.g., "a beautiful mountain range").
