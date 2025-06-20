@@ -225,7 +225,7 @@ class WidgetLogic {
         this.state = state; 
         this.COLORS = colors;
         this.lastPos = { x: 0, y: 0 };
-        this.mask_optimisation_factor = 4;
+        this.mask_optimisation_factor = 16;
     }
     
     // --- UI Management --- (unchanged)
