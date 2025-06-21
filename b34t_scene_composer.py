@@ -51,6 +51,7 @@ class B34tSceneComposerNode:
                     "max": 1.0,
                     "step": 0.01 
                 }),
+                "mask_downscale_factor": ([1, 2, 4, 8, 16, 32, 64], {"default": 8}),
                 "scene_json": ( "STRING", { "default": "", "multiline": False, }),
                 "scene_data": ("B34T_SCENE_COMPOSER",),
             }
@@ -61,7 +62,7 @@ class B34tSceneComposerNode:
     FUNCTION = "compose_scene"
     CATEGORY = "834t_Nodes"
 
-    def compose_scene(self, clip, width, height, normalize_masks, add_base_prompt, base_prompt_strength, scene_json, scene_data=""):
+    def compose_scene(self, clip, width, height, normalize_masks, add_base_prompt, base_prompt_strength, mask_downscale_factor, scene_json, scene_data=""):
         """
         The main function of the node.
         """
