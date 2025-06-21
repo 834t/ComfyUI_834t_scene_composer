@@ -1,5 +1,4 @@
-// --- File: js/scene_composer.js ---
-// VERSION 9
+// --- File: js/scene_composer.js --- 
 
 import { app } from "/scripts/app.js";
 
@@ -88,7 +87,7 @@ const SceneComposerWidget = {
             if (!canvasEl || !canvasEl.width) return [width, 100];
             const aspectRatio = canvasEl.height / canvasEl.width;
             const toolbarHeight = toolbar.getClientRects().item(0);
-            const offsetHeight = (toolbarHeight?.height * 1.5 || 30) + 340;
+            const offsetHeight = (toolbarHeight?.height * 1.5 || 30) + 380;
             return [width, (width * aspectRatio) + offsetHeight];
         }
 
@@ -107,8 +106,7 @@ const SceneComposerWidget = {
         state.bufferCtx = bufferCanvas.getContext('2d');
         COLORS.forEach(color => { state.layerCanvases[color] = document.createElement('canvas'); });
 
-        widget.serializeValue = function (){ 
-            console.log( this );
+        widget.serializeValue = function (){  
             logic.syncValue();
             jsonWidget.value = logic.serialize(); 
             this.value = jsonWidget.value; 
@@ -148,8 +146,7 @@ const SceneComposerWidget = {
             for(const w of node.widgets){ 
                 if(w.name === "scene_json"){
                     jsonWidget = w;
-                    jsonWidget.hidden = true; 
-                    console.log( { jsonWidget } );
+                    jsonWidget.hidden = true;  
                     if( jsonWidget.value != "" ){
                         try{
                             const nextJSON = JSON.parse( jsonWidget.value );
@@ -422,13 +419,15 @@ class WidgetLogic {
 
     serialize(forWidgetValue = false) {
         const data = { version: 2, layerData: this.state.layerData, masks: {} };
+        const factorWidget = this.node.widgets.find(w => w.name === "mask_downscale_factor");
+        const optimisationFactor = factorWidget ? factorWidget.value : this.mask_optimisation_factor; 
         for (const color in this.state.layerCanvases) {
             const canvas = this.state.layerCanvases[color];
             if(canvas.width > 0 && canvas.height > 0) {
                 const hasContent = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data.some((channel, i) => (i + 1) % 4 === 0 && channel > 0);
                 if (hasContent) {
-                    tmpCan.width = parseInt(canvas.width / this.mask_optimisation_factor);
-                    tmpCan.height = parseInt(canvas.height / this.mask_optimisation_factor);
+                    tmpCan.width = parseInt(canvas.width / optimisationFactor);
+                    tmpCan.height = parseInt(canvas.height / optimisationFactor);
                     tmpCtx.clearRect( 0, 0, tmpCan.width, tmpCan.height );
                     tmpCtx.drawImage(canvas, 0, 0, tmpCan.width, tmpCan.height);
                     // logCanvas(tmpCan);
