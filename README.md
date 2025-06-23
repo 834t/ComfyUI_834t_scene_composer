@@ -57,6 +57,8 @@ The Scene Composer is more than just a node; it's a complete toolkit designed to
 | **IN**  | `width`/`height`  | The dimensions of the output latent space and drawing canvas.                                           |
 | **IN**  | `normalize_masks` | (Boolean) If true, normalizes the weight of overlapping masks to prevent artifacts. **Recommended: True**. |
 | **IN**  | `add_base_prompt` | (Boolean) If true, creates a global conditioning from all prompts to improve coherence.                  |
+| **IN**  | `base_prompt_strength` | (Alpha 0-1) strength of base_prompt (if it's turned on).                  |
+| **IN**  | `masks_downscale_factor` | (Optional 1,2,4,8,16,32,64) select the power of downscaling for the final masks.                  |
 | **IN**  | `scene_data`      | Internal data managed by the widget. You don't need to connect anything here.                           |
 | **OUT** | `latent`          | An empty latent image of the specified dimensions.                                                      |
 | **OUT** | `positive`        | The combined positive conditioning from all your drawn layers.                                          |
