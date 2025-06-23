@@ -15,7 +15,7 @@ The Scene Composer is more than just a node; it's a complete toolkit designed to
 *   **🛠️ Intuitive Tools:** Comes equipped with a **Brush**, **Line**, and **Eraser** tool. 
 *   **🧠 Smart Mask Normalization:** An optional (`normalize_masks`) feature that intelligently blends overlapping regions, preventing concept "burn-in" and creating more coherent images.
 *   **📝 Automatic Base Prompt:** Optionally (`add_base_prompt`) create a global conditioning from all layer prompts, helping to unify the overall style and theme of the image.
-*   **🖼️ Set background Image
+*   **🖼️ Set background Image**
 *   **💾 Save & Load Scene State:**
     *   Save your entire scene (all drawings, prompts, and settings) to a `.json` file with the "S" button.
     *   Load a scene from a file with the "L" button.
