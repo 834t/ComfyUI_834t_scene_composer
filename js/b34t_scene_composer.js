@@ -56,6 +56,32 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
+const loadImageFile_element = document.createElement('input');
+loadImageFile_element.type = 'file';
+loadImageFile_element.accept = 'image/*';
+let loadImageFile_handler = function(){};
+loadImageFile_element.addEventListener( 'change', function(){ loadImageFile_handler( ...arguments ); } );
+const loadImageFile = function(){
+    return new Promise( ( resolve, reject ) => {
+        loadImageFile_handler = ( event ) => {
+            const file = loadImageFile_element.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        loadImageFile_element.value = null;
+                        resolve( img );
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+        loadImageFile_element.click();
+    } );
+}
+
 // --- 2. MAIN WIDGET OBJECT --- (unchanged)
 const SceneComposerWidget = {
     init(node, inputName, inputData, app) {
@@ -98,9 +124,9 @@ const SceneComposerWidget = {
             layerData: Object.fromEntries(COLORS.map(c => [c, { prompt: "", opacity: 0.5, visible: true }])),
         };
         const logic = new WidgetLogic(node, widget, state, COLORS);
-        const { canvas, bufferCanvas, toolbar } = this.createDOM(container, logic, COLORS);
+        const { bgimageCanvas, canvas, bufferCanvas, toolbar } = this.createDOM(container, logic, COLORS);
         widget.canvas_el = canvas;
-        state.ui = { canvas, bufferCanvas, container };
+        state.ui = { bgimageCanvas, canvas, bufferCanvas, container };
         state.global_can = canvas;
         state.ctx = canvas.getContext('2d');
         state.bufferCtx = bufferCanvas.getContext('2d');
@@ -180,29 +206,49 @@ const SceneComposerWidget = {
         const opacitySlider = this.createSlider(0, 1, 0.5, (e) => logic.setActiveLayerOpacity(e.target.value), 0.05);
         const layerMgmtGroup = document.createElement("div"); layerMgmtGroup.className = "sc-toolbar-group";
         const visibilityBtn = this.createButton("👁️", "visibility", "Layer Visibility", logic.toggleActiveLayerVisibility.bind(logic));
+        const backgroundImageBtn = this.createButton("🖼️", "background_image", "Set background Image", () => logic.setBackgroundImage());
         const saveBtn = this.createButton("S", "save", "Save Scene", logic.saveStateToFile.bind(logic));
         const loadBtn = this.createButton("L", "load", "Load Scene", logic.loadStateFromFile.bind(logic));
-        layerMgmtGroup.append(visibilityBtn, saveBtn, loadBtn);
+
+        layerMgmtGroup.append(visibilityBtn, backgroundImageBtn, saveBtn, loadBtn);
         toolbar.append(toolsGroup, sizeSlider, paletteGroup, opacitySlider, layerMgmtGroup);
+
         const promptInput = document.createElement("textarea");
         promptInput.className = "sc-prompt-input"; promptInput.placeholder = "Prompt for active layer...";
         promptInput.oninput = (e) => logic.updatePrompt(e.target.value);
+
         const canvasContainer = document.createElement("div"); 
         canvasContainer.className = "sc-canvas-container"; 
+
+        const bgimageCanvas = document.createElement("canvas"); 
+        bgimageCanvas.className = "sc-canvas";
+        bgimageCanvas.style.cssText = "position: absolute; top: 0; left: 0; pointer-events: none; opacity: 0.3;";
+
         const canvas = document.createElement("canvas"); 
         canvas.className = "sc-canvas";
+
         const bufferCanvas = document.createElement('canvas'); 
         bufferCanvas.className = "sc-canvas";
         bufferCanvas.style.cssText = "position: absolute; top: 0; left: 0; pointer-events: none;";
 
-        canvasContainer.append(canvas, bufferCanvas);
+        // const loadImageFile_element = document.createElement('input');
+        // loadImageFile_element.type = 'file';
+        // loadImageFile_element.accept = 'image/*';
+        // this.initLoadingLogic( loadImageFile_element );
+
+        canvasContainer.append(canvas, bgimageCanvas, bufferCanvas);
         canvas.onmousedown = (e) => logic.startDrawing(e);
         canvas.onmousemove = (e) => logic.draw(e);
         canvas.onmouseup = (e) => logic.stopDrawing(e);
         canvas.onmouseleave = (e) => logic.stopDrawing(e, true);
         container.append(toolbar, promptInput, canvasContainer);
-        return { canvas, bufferCanvas, toolbar };
+        return { bgimageCanvas, canvas, bufferCanvas, toolbar };
     },
+
+    // initLoadingLogic( loadImageFile ){
+
+    // }
+
     createButton(text, id, title, onClick) {
         const btn = document.createElement("button"); btn.className = "sc-toolbar-btn"; btn.textContent = text;
         btn.id = `sc-btn-${id}`; btn.title = title; btn.onclick = onClick; return btn;
@@ -258,6 +304,22 @@ class WidgetLogic {
         this.syncValue(); 
     }
 
+    async setBackgroundImage(){
+  
+        const canvas = this.state.ui.bgimageCanvas;
+        const img = await loadImageFile();
+
+        if (!canvas || !img) {
+            console.error("Canvas element not found. Please ensure 'myCanvas' ID exists.");
+            return;
+        }
+
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height); 
+
+    }
+
     toggleActiveLayerVisibility() {
         const data = this.state.layerData[this.state.activeColor]; data.visible = !data.visible;
         this.state.ui.container.querySelector('#sc-btn-visibility').style.opacity = data.visible ? '1' : '0.4';
@@ -280,8 +342,7 @@ class WidgetLogic {
             }
         });
         
-
-        [this.state.ui.canvas, this.state.ui.bufferCanvas].forEach(c => {
+        [this.state.ui.bgimageCanvas, this.state.ui.canvas, this.state.ui.bufferCanvas].forEach(c => {
             if (c) {  
                 c.width = w; 
                 c.height = h;  
@@ -448,6 +509,7 @@ class WidgetLogic {
             
             Object.assign(this.state.layerData, stateData.layerData);
             if (!stateData.masks) { this.redrawVisibleCanvas(); this.syncValue(); return; }
+            // console.log( { stateData } );
             const promises = Object.entries(stateData.masks).map(([color, src]) => {
                 return new Promise((resolve) => {
                     const img = new Image();
